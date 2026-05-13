@@ -85,25 +85,20 @@ cp -r code/Scripts/molsimstack/* "$INSTALL_DIR/"
 # -----------------------------
 echo "[4/5] Installing CLI wrapper"
 
+WRAPPER_SRC="code/molsimstack.sh"
 BIN_PATH="$CONDA_PREFIX/bin/molsimstack"
 
-# If wrapper exists, use it
-if [[ -f "code/molsimstack" ]]; then
-    cp code/molsimstack "$BIN_PATH"
-else
-    echo "WARNING: wrapper not found, generating default CLI"
-
-    cat <<EOF > "$BIN_PATH"
-#!/usr/bin/env bash
-set -euo pipefail
-
-BASE_DIR="\$(cd "\$(dirname "\${BASH_SOURCE[0]}")/../share/molsimstack" && pwd)"
-export PYTHONPATH="\$BASE_DIR:\${PYTHONPATH:-}"
-
-python "\$BASE_DIR/core/dispatcher.py" "\$@"
-EOF
+# Check wrapper exists
+if [[ ! -f "$WRAPPER_SRC" ]]; then
+    echo "ERROR: CLI wrapper not found: $WRAPPER_SRC"
+    echo "Please ensure molsimstack.sh exists in the repository."
+    exit 1
 fi
 
+# Copy wrapper
+cp "$WRAPPER_SRC" "$BIN_PATH"
+
+# Make executable
 chmod +x "$BIN_PATH"
 
 # -----------------------------
