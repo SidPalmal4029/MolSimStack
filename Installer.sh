@@ -65,3 +65,55 @@ EOF
 echo "=== Installation Complete ==="
 echo "Activate environment with:"
 echo "conda activate $ENV_NAME"
+
+# -----------------------------
+# Install engine code
+# -----------------------------
+echo "[3/5] Installing core engine"
+
+INSTALL_DIR="$CONDA_PREFIX/share/molsimstack"
+mkdir -p "$INSTALL_DIR"
+
+# Clean previous install
+rm -rf "$INSTALL_DIR"/*
+
+# Copy working code ONLY
+cp -r code/Scripts/molsimstack/* "$INSTALL_DIR/"
+
+# -----------------------------
+# Install wrapper (CLI)
+# -----------------------------
+echo "[4/5] Installing CLI wrapper"
+
+BIN_PATH="$CONDA_PREFIX/bin/molsimstack"
+
+# If wrapper exists, use it
+if [[ -f "code/molsimstack" ]]; then
+    cp code/molsimstack "$BIN_PATH"
+else
+    echo "WARNING: wrapper not found, generating default CLI"
+
+    cat <<EOF > "$BIN_PATH"
+#!/usr/bin/env bash
+set -euo pipefail
+
+BASE_DIR="\$(cd "\$(dirname "\${BASH_SOURCE[0]}")/../share/molsimstack" && pwd)"
+export PYTHONPATH="\$BASE_DIR:\${PYTHONPATH:-}"
+
+python "\$BASE_DIR/core/dispatcher.py" "\$@"
+EOF
+fi
+
+chmod +x "$BIN_PATH"
+
+# -----------------------------
+# Done
+# -----------------------------
+echo "[5/5] Installation complete"
+
+echo ""
+echo "Activate:"
+echo "conda activate $ENV_NAME"
+echo ""
+echo "Test:"
+echo "molsimstack -h"
