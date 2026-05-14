@@ -1,3 +1,285 @@
+# Methodology Overview
+
+# BLAST nased nucleotide similarity calculation module
+
+# RDKit-based molecular similarity calculation module (for small molecules)
+
+RDKit-based molecular comparison in MolSimStack is designed to evaluate chemical similarity from multiple complementary perspectives rather than relying on a single fingerprinting strategy. Different methods capture different aspects of molecular organization, such as topology, substructure composition, physicochemical properties, 3D geometry, or pharmacophoric arrangements.
+
+By combining several approaches, the pipeline enables:
+
+Detection of structurally related compounds
+Comparison of local vs global similarity trends
+Identification of scaffold conservation
+Assessment of descriptor-based chemical space proximity
+Consensus analysis across orthogonal similarity models
+
+Each method generates independent similarity and distance matrices, followed by clustering and visualization where applicable.
+
+Molecular Similarity Methods
+1. Morgan Fingerprints (morgan)
+
+Morgan fingerprints are circular fingerprints derived from atom environments surrounding each atom within a defined radius.
+
+Method
+Each atom is iteratively expanded to include neighboring atoms
+Local atomic environments are hashed into binary identifiers
+The resulting bit vector represents molecular structure
+Captures
+Local substructures
+Functional group neighborhoods
+Connectivity patterns
+Similarity Metric
+
+Typically computed using:
+
+T(A,B)=
+∣A∪B∣
+∣A∩B∣
+	​
+
+
+where:
+
+A and B are fingerprint bit sets
+T is the Tanimoto similarity coefficient
+Strengths
+Highly effective for ligand-based virtual screening
+Sensitive to local chemical modifications
+Widely used in cheminformatics workflows
+Limitations
+Limited direct encoding of 3D geometry
+Can miss scaffold-level relationships when substitutions vary heavily
+2. Topological Fingerprints (topo)
+
+Topological fingerprints encode linear molecular paths and graph connectivity.
+
+Method
+Enumerates atom paths through the molecular graph
+Encodes connectivity sequences into binary features
+Captures
+Bond connectivity
+Graph traversal patterns
+Structural topology
+Strengths
+Effective for graph-level similarity
+Useful for identifying related connectivity motifs
+Computationally efficient
+Limitations
+Less sensitive to stereochemistry
+No explicit 3D representation
+3. MACCS Keys (maccs)
+
+MACCS fingerprints are predefined structural key fingerprints composed of fixed substructure rules.
+
+Method
+Uses a curated set of structural SMARTS patterns
+Each bit corresponds to the presence or absence of a known chemical feature
+Captures
+Functional groups
+Common medicinal chemistry motifs
+Standardized structural patterns
+Strengths
+Highly interpretable
+Standardized across many cheminformatics platforms
+Good for rapid comparisons
+Limitations
+Lower structural resolution compared to circular fingerprints
+Restricted to predefined chemical patterns
+4. 3D Shape Similarity (shape3d)
+
+3D shape similarity compares molecular spatial geometry rather than 2D connectivity alone.
+
+Method
+Generates 3D conformers
+Aligns molecular structures in space
+Computes volumetric or spatial overlap similarity
+Captures
+Molecular geometry
+Steric similarity
+Spatial alignment of atoms
+Strengths
+Useful for structure-based drug discovery
+Detects shape mimicry between chemically distinct compounds
+Sensitive to conformational similarity
+Limitations
+Requires reliable conformer generation
+Computationally more expensive
+Results may vary depending on conformational state
+5. Atom Pair Fingerprints (atompair)
+
+Atom pair fingerprints encode relationships between atom types separated by topological distances.
+
+Method
+Records atom-type pairs and the shortest path distance between them
+Encodes pairwise molecular relationships into fingerprints
+Captures
+Long-range connectivity
+Relative atomic arrangement
+Distance-dependent topology
+Strengths
+Effective for scaffold hopping
+Retains relational structural information
+More descriptive than simple substructure fingerprints
+Limitations
+Larger fingerprint space
+Can become sparse for complex molecules
+6. Topological Torsion Fingerprints (torsion)
+
+Topological torsion fingerprints represent sequences of bonded atoms.
+
+Method
+Encodes ordered atom quadruplets along molecular paths
+Captures torsional connectivity motifs
+Captures
+Sequential structural arrangements
+Bond rotation environments
+Local connectivity geometry
+Strengths
+Useful for conformationally relevant motifs
+Sensitive to subtle connectivity differences
+Limitations
+Less intuitive interpretation
+No explicit spatial coordinates
+7. Physicochemical Descriptor Similarity (descriptors)
+
+Descriptor-based similarity compares molecules using calculated physicochemical properties.
+
+Method
+
+Common descriptors may include:
+
+Molecular weight
+LogP
+Hydrogen bond donors/acceptors
+Polar surface area
+Rotatable bonds
+Aromaticity metrics
+
+Similarity is computed in multidimensional descriptor space.
+
+Captures
+Chemical property similarity
+Drug-likeness trends
+Physicochemical behavior
+Strengths
+Useful for chemical space analysis
+Orthogonal to structural fingerprints
+Helps identify functionally similar compounds
+Limitations
+Different structures can share similar descriptor profiles
+Lower structural specificity
+8. Pharmacophore Similarity (pharmacophore)
+
+Pharmacophore methods compare functional interaction features relevant to biological activity.
+
+Method
+
+Encodes:
+
+Hydrogen bond donors
+Hydrogen bond acceptors
+Aromatic centers
+Hydrophobic regions
+Charged groups
+Captures
+Functional interaction patterns
+Bioactive feature arrangements
+Potential target-binding similarity
+Strengths
+Biologically meaningful comparisons
+Useful for ligand discovery
+Detects functional analogs
+Limitations
+Depends on accurate feature assignment
+Less effective for purely structural comparison
+9. Murcko Scaffold Analysis (scaffold)
+
+Murcko scaffolds identify the conserved structural core of molecules.
+
+Method
+Removes side chains and substituents
+Retains ring systems and linker framework
+Captures
+Core chemotype organization
+Scaffold conservation
+Structural family relationships
+Strengths
+Useful for scaffold diversity analysis
+Enables chemotype grouping
+Helps identify core structural classes
+Limitations
+Ignores substituent-driven activity differences
+Simplifies molecular detail
+10. Maximum Common Substructure (mcs)
+
+MCS identifies the largest shared substructure between molecules.
+
+Method
+Searches for the maximal overlapping subgraph
+Determines the largest conserved structural region
+Captures
+Shared chemical backbone
+Conserved substructures
+Exact structural overlap
+Strengths
+Highly interpretable
+Excellent for pairwise structural analysis
+Useful for SAR interpretation
+Limitations
+Computationally expensive for large datasets
+Scaling becomes difficult with increasing molecular complexity
+Multi-Method Consensus Analysis
+
+When two or more methods are executed, MolSimStack performs higher-level comparative analyses.
+
+Global Method Agreement
+
+Evaluates how similarly different methods rank molecular relationships across the dataset.
+
+This helps identify:
+
+Redundant methods
+Complementary methods
+Orthogonal similarity spaces
+Local Per-Molecule Consistency
+
+Measures whether a molecule maintains similar nearest neighbors across methods.
+
+Useful for:
+
+Identifying unstable classifications
+Detecting ambiguous compounds
+Finding method-sensitive molecules
+Stability Scoring
+
+A consensus stability score summarizes how consistently a molecule clusters across methods.
+
+Higher stability indicates:
+
+Robust structural identity
+Strong consensus across representations
+
+Lower stability may indicate:
+
+Flexible chemistry
+Multi-domain structural characteristics
+Sensitivity to representation choice
+Why Multiple Similarity Methods Matter
+
+No single molecular similarity metric fully captures all aspects of chemistry.
+
+For example:
+
+Morgan fingerprints emphasize local environments
+Shape similarity captures spatial geometry
+Descriptors reflect physicochemical behavior
+Pharmacophores model biological interaction potential
+
+By integrating multiple orthogonal representations, MolSimStack provides a more comprehensive and biologically relevant view of molecular relatedness.
+
+
+
 # Interpretation of Multi-Method Similarity Analysis
 
 When we talk about similarity of chemical compunds, is not a single, absolute concept, but a multitude of factors like, how molecules are represented—whether by their atomic connectivity, functional groups, three-dimensional shape, physicochemical properties, or interaction features. 
