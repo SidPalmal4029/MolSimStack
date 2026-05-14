@@ -8,28 +8,29 @@ RDKit-based molecular comparison in MolSimStack is designed to evaluate chemical
 
 By combining several approaches, the pipeline enables:
 
-Detection of structurally related compounds
-Comparison of local vs global similarity trends
-Identification of scaffold conservation
-Assessment of descriptor-based chemical space proximity
-Consensus analysis across orthogonal similarity models
+1. Detection of structurally related compounds
+2. Comparison of local vs global similarity trends
+3. Identification of scaffold conservation
+4. Assessment of descriptor-based chemical space proximity
+5. Consensus analysis across orthogonal similarity models
 
-Each method generates independent similarity and distance matrices, followed by clustering and visualization where applicable.
+_Each method generates independent similarity and distance matrices, followed by clustering and visualization where applicable._
 
 Molecular Similarity Methods
-1. Morgan Fingerprints (morgan)
+
+**1. Morgan Fingerprints (morgan)**
 
 Morgan fingerprints are circular fingerprints derived from atom environments surrounding each atom within a defined radius.
 
 Method
 Each atom is iteratively expanded to include neighboring atoms
 Local atomic environments are hashed into binary identifiers
-The resulting bit vector represents molecular structure
+The resulting bit vector represents the molecular structure
 Captures
-Local substructures
-Functional group neighborhoods
-Connectivity patterns
-Similarity Metric
+ 1. Local substructures
+ 2. Functional group neighborhoods
+ 3. Connectivity patterns
+ 4. Similarity Metric
 
 Typically computed using:
 
@@ -37,8 +38,6 @@ T(A,B)=
 ∣A∪B∣
 ∣A∩B∣
 	​
-
-
 where:
 
 A and B are fingerprint bit sets
@@ -50,7 +49,8 @@ Widely used in cheminformatics workflows
 Limitations
 Limited direct encoding of 3D geometry
 Can miss scaffold-level relationships when substitutions vary heavily
-2. Topological Fingerprints (topo)
+
+**2. Topological Fingerprints (topo)**
 
 Topological fingerprints encode linear molecular paths and graph connectivity.
 
@@ -68,7 +68,8 @@ Computationally efficient
 Limitations
 Less sensitive to stereochemistry
 No explicit 3D representation
-3. MACCS Keys (maccs)
+
+**3. MACCS Keys (maccs)**
 
 MACCS fingerprints are predefined structural key fingerprints composed of fixed substructure rules.
 
@@ -86,7 +87,8 @@ Good for rapid comparisons
 Limitations
 Lower structural resolution compared to circular fingerprints
 Restricted to predefined chemical patterns
-4. 3D Shape Similarity (shape3d)
+
+**4. 3D Shape Similarity (shape3d)**
 
 3D shape similarity compares molecular spatial geometry rather than 2D connectivity alone.
 
@@ -106,7 +108,8 @@ Limitations
 Requires reliable conformer generation
 Computationally more expensive
 Results may vary depending on conformational state
-5. Atom Pair Fingerprints (atompair)
+
+**5. Atom Pair Fingerprints (atompair)**
 
 Atom pair fingerprints encode relationships between atom types separated by topological distances.
 
@@ -124,7 +127,8 @@ More descriptive than simple substructure fingerprints
 Limitations
 Larger fingerprint space
 Can become sparse for complex molecules
-6. Topological Torsion Fingerprints (torsion)
+
+**6. Topological Torsion Fingerprints (torsion)**
 
 Topological torsion fingerprints represent sequences of bonded atoms.
 
@@ -141,7 +145,8 @@ Sensitive to subtle connectivity differences
 Limitations
 Less intuitive interpretation
 No explicit spatial coordinates
-7. Physicochemical Descriptor Similarity (descriptors)
+
+**7. Physicochemical Descriptor Similarity (descriptors)**
 
 Descriptor-based similarity compares molecules using calculated physicochemical properties.
 
@@ -156,7 +161,7 @@ Polar surface area
 Rotatable bonds
 Aromaticity metrics
 
-Similarity is computed in multidimensional descriptor space.
+Similarity is computed in a multidimensional descriptor space.
 
 Captures
 Chemical property similarity
@@ -169,7 +174,8 @@ Helps identify functionally similar compounds
 Limitations
 Different structures can share similar descriptor profiles
 Lower structural specificity
-8. Pharmacophore Similarity (pharmacophore)
+
+**8. Pharmacophore Similarity (pharmacophore)**
 
 Pharmacophore methods compare functional interaction features relevant to biological activity.
 
@@ -193,7 +199,8 @@ Detects functional analogs
 Limitations
 Depends on accurate feature assignment
 Less effective for purely structural comparison
-9. Murcko Scaffold Analysis (scaffold)
+
+**9. Murcko Scaffold Analysis (scaffold)**
 
 Murcko scaffolds identify the conserved structural core of molecules.
 
@@ -211,7 +218,8 @@ Helps identify core structural classes
 Limitations
 Ignores substituent-driven activity differences
 Simplifies molecular detail
-10. Maximum Common Substructure (mcs)
+
+**10. Maximum Common Substructure (mcs)**
 
 MCS identifies the largest shared substructure between molecules.
 
@@ -229,7 +237,8 @@ Useful for SAR interpretation
 Limitations
 Computationally expensive for large datasets
 Scaling becomes difficult with increasing molecular complexity
-Multi-Method Consensus Analysis
+
+**Multi-Method Consensus Analysis**
 
 When two or more methods are executed, MolSimStack performs higher-level comparative analyses.
 
