@@ -6,7 +6,7 @@ from .methods import (
     atompair, torsion, descriptors,
     pharmacophore, scaffold, mcs
 )
-
+from core.features import compute_and_store_features
 from core.comparison.per_molecule import (
     per_molecule_comparison,
     save_per_molecule,
@@ -43,10 +43,19 @@ def run(args):
         args.input,
         outdir=args.outdir
     )
+    # NEW: Per-molecule feature generation
+    print("[Molecular] Computing per-molecule features")
 
-    # -----------------------------
+    feature_dir = os.path.join(args.outdir, "per_molecule_features")
+
+    compute_and_store_features(
+        mols,
+        names,
+        feature_dir,
+        save_bits=True,     # default ON
+        force=False         # change to True if recompute needed
+    )
     # Resolve methods
-    # -----------------------------
     methods = args.methods if args.methods else DEFAULT_METHODS
 
     # Handle "all" keyword
@@ -57,27 +66,21 @@ def run(args):
     seen = set()
     methods = [m for m in methods if not (m in seen or seen.add(m))]
 
-    # -----------------------------
     # Validate methods
-    # -----------------------------
     for method in methods:
         if method not in METHOD_MAP:
             raise ValueError(f"Invalid method: {method}")
 
     print(f"[Molecular] Methods to run: {methods}")
 
-    # -----------------------------
     # Run methods
-    # -----------------------------
     for method in methods:
         print(f"[Molecular] Running method: {method}")
 
         method_outdir = os.path.join(args.outdir, method)
         METHOD_MAP[method].run(mols, names, method_outdir, args.threads)
 
-    # -----------------------------
     # Post-analysis (only if ≥2 methods)
-    # -----------------------------
     if len(methods) >= 2:
         print("[Molecular] Running cross-method comparison")
 
