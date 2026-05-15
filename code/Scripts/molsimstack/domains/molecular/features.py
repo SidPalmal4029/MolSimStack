@@ -13,6 +13,7 @@ from rdkit.Chem import (
 )
 from rdkit.Chem.Scaffolds import MurckoScaffold
 from rdkit.Chem.AtomPairs import Pairs, Torsions
+from rdkit.Chem import Draw
 
 # 1. DESCRIPTORS + SCAFFOLds
 
@@ -46,17 +47,14 @@ def compute_fingerprints(mols):
         fps["morgan"].append(
             AllChem.GetMorganFingerprintAsBitVect(mol, radius=2, nBits=2048)
         )
-
         # MACCS
         fps["maccs"].append(
             MACCSkeys.GenMACCSKeys(mol)
         )
-
         # Atom Pair
         fps["atompair"].append(
             Pairs.GetAtomPairFingerprintAsBitVect(mol)
         )
-
         # Topological Torsion
         fps["torsion"].append(
             Torsions.GetTopologicalTorsionFingerprintAsBitVect(mol)
@@ -125,6 +123,67 @@ def save_metadata(outdir):
         writer = csv.writer(f)
         writer.writerows(metadata)
 
+from rdkit import Chem
+from rdkit.Chem import Draw
+import os
+import csv
+
+
+def save_per_molecule_files(mols, names, features, fps_dict, outdir):
+    base_dir = os.path.join(outdir, "per_molecule")
+    os.makedirs(base_dir, exist_ok=True)
+
+    for mol, name, feat in zip(mols, names, features):
+        mol_dir = os.path.join(base_dir, name)
+        os.makedirs(mol_dir, exist_ok=True)
+
+        # -------------------------
+        # 1. Descriptors
+        # -------------------------
+        with open(os.path.join(mol_dir, "descriptors.csv"), "w", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow(["Property", "Value"])
+            for k, v in feat.items():
+                writer.writerow([k, v])
+
+        # -------------------------
+        # 2. SMILES (structure)
+        # -------------------------
+        smiles = Chem.MolToSmiles(mol)
+
+        with open(os.path.join(mol_dir, "structure.smi"), "w") as f:
+            f.write(smiles + "\n")
+
+        # -------------------------
+        # 3. Scaffold
+        # -------------------------
+        with open(os.path.join(mol_dir, "scaffold.smi"), "w") as f:
+            f.write(feat["Scaffold"] + "\n")
+
+        # -------------------------
+        # 4. 2D Image (PNG)
+        # -------------------------
+        img_path = os.path.join(mol_dir, "structure.png")
+        Draw.MolToFile(mol, img_path, size=(300, 300))
+
+        # -------------------------
+        # 5. Fingerprints (bitstrings)
+        # -------------------------
+        for fp_type, fps in fps_dict.items():
+            fp = fps[names.index(name)]
+
+            if hasattr(fp, "ToBitString"):
+                with open(os.path.join(mol_dir, f"{fp_type}.bits"), "w") as f:
+                    f.write(fp.ToBitString() + "\n")
+
+        # -------------------------
+        # 6. Metadata
+        # -------------------------
+        with open(os.path.join(mol_dir, "metadata.txt"), "w") as f:
+            f.write(f"Name: {name}\n")
+            f.write(f"SMILES: {smiles}\n")
+            f.write("Includes: descriptors, scaffold, fingerprints\n")
+
 def compute_and_store_features(mols, names, outdir,
                                save_bits=True,
                                force=False):
@@ -140,18 +199,14 @@ def compute_and_store_features(mols, names, outdir,
     print("[Features] Computing descriptors")
     features = [compute_features(m) for m in mols]
     save_descriptors(features, names, outdir)
-
-
     print("[Features] Computing fingerprints")
     fps_dict = compute_fingerprints(mols)
-
     print("[Features] Saving fingerprints (PKL)")
     save_fingerprints(fps_dict, names, outdir)
-
     print("[Features] Saving bitstring versions")
     save_bitstrings(fps_dict, names, outdir)
-
     print("[Features] Writing metadata")
-    save_metadata(outdir)
-
+    save_metadata(outdir)                            
+    print("[Features] Writing per-molecule files")
+    save_per_molecule_files(mols, names, features, fps_dict, outdir)
     print("[Features] Completed")
