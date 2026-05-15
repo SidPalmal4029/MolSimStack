@@ -21,6 +21,7 @@ def run(mols, names, outdir, threads=1):
 
     visualization.plot_heatmap(
         sim, link, names,
-        os.path.join(outdir, "heatmap.png"),
+        outdir,
+        method_key="torsion",
         method_name="Topological Torsion"
     )

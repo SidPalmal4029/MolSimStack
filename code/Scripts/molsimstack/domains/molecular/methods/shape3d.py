@@ -50,7 +50,8 @@ def run(mols, names, outdir, threads=1):
         sim,
         link,
         names,
-        os.path.join(outdir, "heatmap.png"),
+        outdir,
+        method_key="shape3d",
         method_name="3D Shape (Tanimoto)"
     )
 

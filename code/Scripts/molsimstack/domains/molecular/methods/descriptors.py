@@ -59,7 +59,7 @@ def run(mols, names, outdir, threads=1, cluster_method="average"):
 
     # Visualization
     visualization.plot_heatmap(
-        sim, link, names,
-        os.path.join(outdir, "heatmap.png"),
+        sim, link, names, outdir,
+        method_key="descriptors",
         method_name=f"Descriptors (Cosine, {cluster_method})"
     )

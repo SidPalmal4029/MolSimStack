@@ -20,7 +20,7 @@ def run(mols, names, outdir, threads=1):
     link = clustering.hierarchical(dist)
 
     visualization.plot_heatmap(
-        sim, link, names,
-        os.path.join(outdir, "heatmap.png"),
+        sim, link, names,outdir,
+        method_key="pharmacophore",
         method_name="Pharmacophore"
     )

@@ -52,7 +52,8 @@ def run(mols, names, outdir, threads=1):
             sim,
             link,
             names,
-            os.path.join(outdir, "heatmap.png"),
+            outdir,
+            method_key="scaffold",
             method_name="Scaffold (Binary)"
         )
 

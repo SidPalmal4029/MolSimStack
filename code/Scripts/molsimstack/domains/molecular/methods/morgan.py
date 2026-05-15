@@ -25,7 +25,8 @@ def run(mols, names, outdir, threads=1):
         sim,
         link,
         names,
-        os.path.join(outdir, "heatmap.png"),
+        outdir,
+        method_key="morgan",
         method_name="Morgan (Tanimoto)"
     )
 
