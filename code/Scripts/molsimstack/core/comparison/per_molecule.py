@@ -25,32 +25,64 @@ def per_molecule_comparison(outdir, methods):
         return None
 
     method_names = list(matrices.keys())
-    mols = matrices[method_names[0]].index
 
-    print(f"[PerMol] Processing {len(mols)} molecules across {len(method_names)} methods")
+    # -----------------------------
+    # Find common molecules
+    # -----------------------------
+    common_mols = set(matrices[method_names[0]].index)
+    for m in method_names[1:]:
+        common_mols = common_mols.intersection(set(matrices[m].index))
+
+    common_mols = sorted(common_mols)
+
+    print(f"[PerMol] Processing {len(common_mols)} molecules across {len(method_names)} methods")
 
     results = []
 
     # -----------------------------
     # Iterate molecules
     # -----------------------------
-    for mol in mols:
+    for mol in common_mols:
         for i in range(len(method_names)):
             for j in range(i + 1, len(method_names)):
 
                 m1 = method_names[i]
                 m2 = method_names[j]
 
-                v1 = matrices[m1].loc[mol].values
-                v2 = matrices[m2].loc[mol].values
+                # safety check
+                if mol not in matrices[m1].index or mol not in matrices[m2].index:
+                    continue
+
+                row1 = matrices[m1].loc[mol]
+                row2 = matrices[m2].loc[mol]
 
                 # -----------------------------
-                # Remove self index safely
+                # Align columns
                 # -----------------------------
-                idx = matrices[m1].index.get_loc(mol)
+                common_cols = row1.index.intersection(row2.index)
 
-                v1 = np.delete(v1, idx)
-                v2 = np.delete(v2, idx)
+                if len(common_cols) == 0:
+                    continue
+
+                # -----------------------------
+                # Remove self safely
+                # -----------------------------
+                if mol in common_cols:
+                    keep_cols = [c for c in common_cols if c != mol]
+                else:
+                    keep_cols = list(common_cols)
+
+                if len(keep_cols) < 2:
+                    continue
+
+                v1 = row1[keep_cols].values
+                v2 = row2[keep_cols].values
+
+                # -----------------------------
+                # Final shape safety
+                # -----------------------------
+                if len(v1) != len(v2):
+                    continue
 
                 # -----------------------------
                 # Handle constant vectors
@@ -82,10 +114,6 @@ def save_per_molecule(df, outdir):
 
     print(f"[PerMol] Saved to {out_file}")
 
-
-# -----------------------------
-# Optional: summary (very useful)
-# -----------------------------
 def summarize_per_molecule(df, outdir):
     comp_dir = os.path.join(outdir, "comparison")
 
