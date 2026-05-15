@@ -157,18 +157,23 @@ if [[ ${#METHODS[@]} -gt 0 ]]; then
     METHOD_ARGS=(--methods "${METHODS[@]}")
 fi
 
-echo "=== MolSimStack Run ==="
-echo "Domain  : $DOMAIN"
-echo "Input   : $INPUT"
-echo "Output  : $OUTDIR"
-echo "Threads : $THREADS"
-echo "------------------------"
+LOGFILE="$OUTDIR/run.log"
+
+mkdir -p "$OUTDIR"
+
+echo "=== MolSimStack Run ===" | tee "$LOGFILE"
+echo "Domain  : $DOMAIN"     | tee -a "$LOGFILE"
+echo "Input   : $INPUT"      | tee -a "$LOGFILE"
+echo "Output  : $OUTDIR"     | tee -a "$LOGFILE"
+echo "Threads : $THREADS"    | tee -a "$LOGFILE"
+echo "------------------------" | tee -a "$LOGFILE"
 
 python "$BASE_DIR/core/dispatcher.py" \
     --input "$INPUT" \
     --outdir "$OUTDIR" \
     --domain "$DOMAIN" \
     --threads "$THREADS" \
-    "${METHOD_ARGS[@]}"
+    "${METHOD_ARGS[@]}" \
+    2>&1 | tee -a "$LOGFILE"
 
-echo "=== Completed ==="
+echo "=== Completed ===" | tee -a "$LOGFILE"
