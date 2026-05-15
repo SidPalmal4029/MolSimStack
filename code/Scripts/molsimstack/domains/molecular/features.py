@@ -12,7 +12,11 @@ from rdkit.Chem import (
     MACCSkeys
 )
 from rdkit.Chem.Scaffolds import MurckoScaffold
-from rdkit.Chem.AtomPairs import Pairs, Torsions
+from rdkit.Chem.rdFingerprintGenerator import (
+    GetMorganGenerator,
+    GetAtomPairGenerator,
+    GetTopologicalTorsionGenerator
+)
 from rdkit.Chem import Draw
 
 # 1. DESCRIPTORS + SCAFFOLds
@@ -35,6 +39,11 @@ def compute_features(mol):
 
 def compute_fingerprints(mols):
     """Function for generation of the fingerprints of the molecules"""
+    # Initialize generators ONCE
+    morgan_gen = GetMorganGenerator(radius=2, fpSize=2048)
+    ap_gen = GetAtomPairGenerator()
+    tt_gen = GetTopologicalTorsionGenerator()
+
     fps = {
         "morgan": [],
         "maccs": [],
@@ -43,24 +52,13 @@ def compute_fingerprints(mols):
     }
 
     for mol in mols:
-        # Morgan (ECFP4)
-        fps["morgan"].append(
-            AllChem.GetMorganFingerprintAsBitVect(mol, radius=2, nBits=2048)
-        )
-        # MACCS
-        fps["maccs"].append(
-            MACCSkeys.GenMACCSKeys(mol)
-        )
-        # Atom Pair
-        fps["atompair"].append(
-            Pairs.GetAtomPairFingerprintAsBitVect(mol)
-        )
-        # Topological Torsion
-        fps["torsion"].append(
-            Torsions.GetTopologicalTorsionFingerprintAsBitVect(mol)
-        )
+        fps["morgan"].append(morgan_gen.GetFingerprint(mol))
+        fps["maccs"].append(MACCSkeys.GenMACCSKeys(mol))
+        fps["atompair"].append(ap_gen.GetFingerprint(mol))
+        fps["torsion"].append(tt_gen.GetFingerprint(mol))
 
     return fps
+
 
 
 def save_descriptors(features, names, outdir):
@@ -169,6 +167,9 @@ def save_per_molecule_files(mols, names, features, fps_dict, outdir):
         for fp_type, fps in fps_dict.items():
             fp = fps[i]
             if hasattr(fp, "ToBitString"):
+                bitstr = fp.ToBitString()
+            else:
+                bitstr = str(fp.GetNonzeroElements())
                 with open(os.path.join(mol_dir, f"{fp_type}.bits"), "w") as f:
                     f.write(fp.ToBitString() + "\n")
 
