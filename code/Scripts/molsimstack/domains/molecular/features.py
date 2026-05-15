@@ -182,6 +182,8 @@ def save_per_molecule_files(mols, names, features, fps_dict, outdir):
             f.write(f"Name: {name}\n")
             f.write(f"SMILES: {smiles}\n")
             f.write("Includes: descriptors, scaffold, fingerprints\n")
+            f.write(f"MW: {feat['MW']}\n")
+            f.write(f"LogP: {feat['LogP']}\n")
 
 def compute_and_store_features(mols, names, outdir,
                                save_bits=True,
