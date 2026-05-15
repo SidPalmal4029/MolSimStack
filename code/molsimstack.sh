@@ -168,7 +168,7 @@ echo "Output  : $OUTDIR"     | tee -a "$LOGFILE"
 echo "Threads : $THREADS"    | tee -a "$LOGFILE"
 echo "------------------------" | tee -a "$LOGFILE"
 
-python "$BASE_DIR/core/dispatcher.py" \
+python3 -u  "$BASE_DIR/core/dispatcher.py" \
     --input "$INPUT" \
     --outdir "$OUTDIR" \
     --domain "$DOMAIN" \
