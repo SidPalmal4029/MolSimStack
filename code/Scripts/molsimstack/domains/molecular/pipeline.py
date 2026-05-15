@@ -6,7 +6,7 @@ from .methods import (
     atompair, torsion, descriptors,
     pharmacophore, scaffold, mcs
 )
-from core.features import compute_and_store_features
+from domains.molecular.features import compute_and_store_features
 from core.comparison.per_molecule import (
     per_molecule_comparison,
     save_per_molecule,
