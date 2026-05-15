@@ -19,7 +19,7 @@ from rdkit.Chem import Draw
 
 def compute_features(mol):
     """ Function for the computation of descriptors and other data
-        for ech molecules that has bee loaded from the input directory"""
+        for each molecule that has been loaded from the input directory"""
     return {
         "MW": Descriptors.MolWt(mol),
         "LogP": Crippen.MolLogP(mol),
@@ -34,7 +34,7 @@ def compute_features(mol):
     }
 
 def compute_fingerprints(mols):
-  """Function for generation of the fingerprints of the molecules"""
+    """Function for generation of the fingerprints of the molecules"""
     fps = {
         "morgan": [],
         "maccs": [],
@@ -123,17 +123,12 @@ def save_metadata(outdir):
         writer = csv.writer(f)
         writer.writerows(metadata)
 
-from rdkit import Chem
-from rdkit.Chem import Draw
-import os
-import csv
-
-
 def save_per_molecule_files(mols, names, features, fps_dict, outdir):
     base_dir = os.path.join(outdir, "per_molecule")
     os.makedirs(base_dir, exist_ok=True)
 
-    for mol, name, feat in zip(mols, names, features):
+    for i, (mol, name, feat) in enumerate(zip(mols, names, features)):
+        fp = fps[i]
         mol_dir = os.path.join(base_dir, name)
         os.makedirs(mol_dir, exist_ok=True)
 
@@ -165,6 +160,10 @@ def save_per_molecule_files(mols, names, features, fps_dict, outdir):
         # -------------------------
         img_path = os.path.join(mol_dir, "structure.png")
         Draw.MolToFile(mol, img_path, size=(300, 300))
+        try:
+            Draw.MolToFile(mol, img_path, size=(300, 300))
+        except Exception:
+            pass
 
         # -------------------------
         # 5. Fingerprints (bitstrings)
