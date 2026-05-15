@@ -128,7 +128,6 @@ def save_per_molecule_files(mols, names, features, fps_dict, outdir):
     os.makedirs(base_dir, exist_ok=True)
 
     for i, (mol, name, feat) in enumerate(zip(mols, names, features)):
-        fp = fps[i]
         mol_dir = os.path.join(base_dir, name)
         os.makedirs(mol_dir, exist_ok=True)
 
@@ -159,7 +158,6 @@ def save_per_molecule_files(mols, names, features, fps_dict, outdir):
         # 4. 2D Image (PNG)
         # -------------------------
         img_path = os.path.join(mol_dir, "structure.png")
-        Draw.MolToFile(mol, img_path, size=(300, 300))
         try:
             Draw.MolToFile(mol, img_path, size=(300, 300))
         except Exception:
@@ -169,8 +167,7 @@ def save_per_molecule_files(mols, names, features, fps_dict, outdir):
         # 5. Fingerprints (bitstrings)
         # -------------------------
         for fp_type, fps in fps_dict.items():
-            fp = fps[names.index(name)]
-
+            fp = fps[i]
             if hasattr(fp, "ToBitString"):
                 with open(os.path.join(mol_dir, f"{fp_type}.bits"), "w") as f:
                     f.write(fp.ToBitString() + "\n")
